@@ -33,33 +33,33 @@ SETUP:
 
     ; Definir registros (IGUAL que la prueba + nuevos)
     .def    temp            = R16
-    .def    contador_seg    = R17    ; IGUAL que prueba
-    .def    overflow_count  = R18    ; IGUAL que prueba
-    .def    contador_100ms  = R19    ; IGUAL que prueba
-    .def    contador_botones = R20   ; NUEVO
-    .def    estado_B1       = R21    ; NUEVO
-    .def    estado_B2       = R22    ; NUEVO
-    .def    led_estado      = R23    ; NUEVO
+    .def    contador_seg    = R17    ; 
+    .def    overflow_count  = R18    ; 
+    .def    contador_100ms  = R19    ;
+    .def    contador_botones = R20   ; 
+    .def    estado_B1       = R21    ; 
+    .def    estado_B2       = R22    ; 
+    .def    led_estado      = R23    ; 
 
-    ; --- PUERTO B (LEDs) IGUAL que prueba ---
+    ; --- PUERTO B (LEDs) ---
     LDI     temp, 0b00011111        ; PB0-PB4 salidas
     OUT     DDRB, temp
     CLR     temp
     OUT     PORTB, temp
 
-    ; --- PUERTO D (DISPLAY) NUEVO ---
+    ; --- PUERTO D (DISPLAY) ---
     LDI     temp, 0b11111110
     OUT     DDRD, temp
     CLR     temp
     OUT     PORTD, temp
 
-    ; --- PUERTO C (BOTONES) NUEVO ---
+    ; --- PUERTO C (BOTONES) ---
     LDI     temp, 0b00000011
     OUT     PORTC, temp
     CLR     temp
     OUT     DDRC, temp
 
-    ; --- CONFIGURAR TIMER0 (IGUAL que prueba) ---
+    ; --- CONFIGURAR TIMER0 ---
     CLR     temp
     OUT     TCCR0A, temp
     LDI     temp, (1<<CS02)|(1<<CS00)
@@ -67,27 +67,27 @@ SETUP:
     CLR     temp
     OUT     TCNT0, temp
 
-    ; --- INICIALIZAR VARIABLES (IGUAL que prueba) ---
+    ; --- INICIALIZAR VARIABLES ---
     CLR     contador_seg
     CLR     overflow_count
     CLR     contador_100ms
-    CLR     contador_botones    ; NUEVO
-    CLR     estado_B1            ; NUEVO
-    CLR     estado_B2            ; NUEVO
-    CLR     led_estado           ; NUEVO
+    CLR     contador_botones    
+    CLR     estado_B1            
+    CLR     estado_B2            
+    CLR     led_estado           ; TODAS LAS VARIABLES INICIAN EN 0
 
     ; Mostrar valores iniciales
     OUT     PORTB, contador_seg  ; LEDs en 0
     RCALL   DISPLAY_UPDATE        ; Display en 0
 
 ; ============================================================================
-; BUCLE PRINCIPAL - ESTRUCTURA IDÉNTICA A LA PRUEBA
+; BUCLE PRINCIPAL 
 ; ============================================================================
 MAIN_LOOP:
-    ; --- CÓDIGO DEL TIMER - EXACTAMENTE IGUAL A LA PRUEBA ---
+    ; --- CÓDIGO DEL TIMER ---
     IN      temp, TIFR0
     SBRS    temp, TOV0
-    RJMP    REVISAR_BOTONES      ; Solo cambio: en vez de MAIN_LOOP, voy a revisar botones
+    RJMP    REVISAR_BOTONES      
 
     LDI     temp, (1<<TOV0)
     OUT     TIFR0, temp
@@ -102,7 +102,7 @@ MAIN_LOOP:
     CPI     contador_100ms, CICLOS_POR_SEGUNDO
     BRNE    REVISAR_BOTONES
 
-    ; 1 SEGUNDO - EXACTAMENTE IGUAL A LA PRUEBA
+    ; 1 SEGUNDO 
     CLR     contador_100ms
     INC     contador_seg
     CPI     contador_seg, 16
@@ -110,10 +110,10 @@ MAIN_LOOP:
     CLR     contador_seg
 SEG_NO_RESET:
 
-    ; ACTUALIZAR LEDs - IGUAL QUE PRUEBA
+    ; ACTUALIZAR LEDs 
     OUT     PORTB, contador_seg
 
-    ; COMPARAR (NUEVO - para D12)
+    ; COMPARAR
     CPSE    contador_seg, contador_botones
     RJMP    REVISAR_BOTONES
 
@@ -145,7 +145,7 @@ REVISAR_BOTONES:
     RCALL   CAMBIO_B2
     MOV     estado_B2, temp
 
-    ; Pequeño delay (NUEVO)
+    ; Pequeño delay 
     RCALL   DELAY_CORTO
     RJMP    MAIN_LOOP
 
