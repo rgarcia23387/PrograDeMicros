@@ -31,15 +31,15 @@ SETUP:
     LDI     R16, HIGH(RAMEND)
     OUT     SPH, R16
 
-    ; Definir registros (IGUAL que la prueba + nuevos)
+    ; Definir registros 
     .def    temp            = R16
-    .def    contador_seg    = R17    ; 
-    .def    overflow_count  = R18    ; 
-    .def    contador_100ms  = R19    ;
-    .def    contador_botones = R20   ; 
-    .def    estado_B1       = R21    ; 
-    .def    estado_B2       = R22    ; 
-    .def    led_estado      = R23    ; 
+    .def    contador_seg    = R17    
+    .def    overflow_count  = R18     
+    .def    contador_100ms  = R19    
+    .def    contador_botones = R20    
+    .def    estado_B1       = R21     
+    .def    estado_B2       = R22     
+    .def    led_estado      = R23     
 
     ; --- PUERTO B (LEDs) ---
     LDI     temp, 0b00011111        ; PB0-PB4 salidas
