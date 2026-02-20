@@ -10,7 +10,7 @@
 .include "M328PDEF.inc"     // Include definitions specific to ATMega328P
 
 
-; Constantes (IGUALES a la prueba)
+; Constantes 
 .equ    DESBORDAMIENTOS_100MS = 6
 .equ    CICLOS_POR_SEGUNDO = 10
 
