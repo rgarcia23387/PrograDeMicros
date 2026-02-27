@@ -183,7 +183,7 @@ ISR_TIMER0:
     IN temp, SREG
     PUSH temp
 
-;---- MULTIPLEXADO ----
+; MULTIPLEXADO 
     LDI temp, 0x01
 	EOR muxFlag, temp
 
@@ -206,7 +206,7 @@ SHOW_DEC:
 
 CONTAR:
 
-;---- 1 SEGUNDO ----
+; 1 SEGUNDO 
     INC ticks10ms
     CPI ticks10ms, 100
     BRNE FIN_TIMER
