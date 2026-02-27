@@ -16,7 +16,9 @@
 .def cambios     = R19
 .def anterior    = R20
 .def ticks10ms   = R21      ; Cuenta interrupciones de 10ms
-.def contadorHex = R22      ; Contador hexadecimal 
+.def unidades    = R22      ; Contador displays 
+.def decenas     = R23
+.def muxFlag     = R24
 
 .dseg
 .org SRAM_START
@@ -54,6 +56,12 @@ SETUP:
     LDI temp, 0xFE
     OUT DDRD, temp
 
+; Transistores PC2 y PC3
+    SBI DDRC, 2
+    SBI DDRC, 3
+    CBI PORTC, 2
+    CBI PORTC, 3
+
 ; Botones PC0 y PC1 entrada
     CBI DDRC, 0
     CBI DDRC, 1
@@ -61,33 +69,34 @@ SETUP:
     SBI PORTC, 0     ; Pull-up
     SBI PORTC, 1     ; Pull-up
 
-; Inicializar contadores
+; Inicializar variables
     CLR contador4b
-    CLR contadorHex
+    CLR unidades
+    CLR decenas
     CLR ticks10ms
+    CLR muxFlag
 
     OUT PORTB, contador4b
-    RCALL MOSTRAR_DISPLAY
 
-; Guardar estado inicial botones
+; Estado inicial botones
     IN anterior, PINC
     ANDI anterior, 0x03
 
-; Configurar PCINT (botones)
+; PCINT botones
     LDI temp, (1<<PCIE1)
     STS PCICR, temp
 
     LDI temp, (1<<PCINT8)|(1<<PCINT9)
     STS PCMSK1, temp
 
-; Configurar Timer0 CTC 10ms
+; TIMER0 CTC 10ms
     LDI temp, (1<<WGM01)
     OUT TCCR0A, temp
 
-    LDI temp, (1<<CS02)|(1<<CS00) ; Prescaler 1024
+    LDI temp, (1<<CS02)|(1<<CS00)
     OUT TCCR0B, temp
 
-    LDI temp, 155                 ; 10ms
+    LDI temp, 155
     OUT OCR0A, temp
 
     LDI temp, (1<<OCIE0A)
@@ -110,13 +119,13 @@ MOSTRAR_DISPLAY:
     LDI ZH, HIGH(tabla7seg<<1) ; carga la parte alta de la dirección
     LDI ZL, LOW(tabla7seg<<1) ; carga la parte baja de la dirección
 
-    ADD ZL, contadorHex
-	CLR temp
+    ADD ZL, R25
+    CLR temp
     ADC ZH, temp
 
     LPM temp, Z
 
-	LSL temp ;
+    LSL temp
 
     OUT PORTD, temp
 
@@ -174,16 +183,49 @@ ISR_TIMER0:
     IN temp, SREG
     PUSH temp
 
+;---- MULTIPLEXADO ----
+    LDI temp, 0x01
+	EOR muxFlag, temp
+
+    CPI muxFlag, 0
+    BRNE SHOW_DEC
+
+; UNIDADES
+    MOV R25, unidades
+    RCALL MOSTRAR_DISPLAY
+    SBI PORTC, 2
+    CBI PORTC, 3
+    RJMP CONTAR
+
+SHOW_DEC:
+; DECENAS
+    MOV R25, decenas
+    RCALL MOSTRAR_DISPLAY
+    SBI PORTC, 3
+    CBI PORTC, 2
+
+CONTAR:
+
+;---- 1 SEGUNDO ----
     INC ticks10ms
     CPI ticks10ms, 100
     BRNE FIN_TIMER
 
     CLR ticks10ms
 
-    INC contadorHex
-    ANDI contadorHex, 0x0F
+    INC unidades
+    CPI unidades, 10
+    BRNE CHECK_60
 
-    RCALL MOSTRAR_DISPLAY
+    CLR unidades
+    INC decenas
+
+CHECK_60:
+    CPI decenas, 6
+    BRNE FIN_TIMER
+
+    CLR unidades
+    CLR decenas
 
 FIN_TIMER:
     POP temp
