@@ -170,7 +170,7 @@ SETUP:
     CLR     accion_boton
     CLR     turno_display
 
-    //  Timer0: genera interrupcion cada ~4ms para el multiplexado 
+    //  Timer0: genera interrupcion cada 4ms para el multiplexado 
     // Prescaler 256 sobre 16MHz - overflow cada 4ms
     LDI     R16, (1 << CS02)
     OUT     TCCR0B, R16
