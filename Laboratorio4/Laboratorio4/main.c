@@ -15,9 +15,7 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 
-/****************************************/
 // Defines
-/****************************************/
 
 // Botones (PORTC)
 #define BTN_UP          (1 << PC2)  // Pushbutton incremento
