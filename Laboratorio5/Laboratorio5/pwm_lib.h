@@ -9,10 +9,6 @@
 #ifndef PWM_LIB_H_   /* Guard para evitar inclusión múltiple del header */
 #define PWM_LIB_H_   /* Si el archivo ya fue incluido, se salta todo esto */
 
-/*
- * Para usar los tipos uint8_t, uint16_t, etc.
- * y los registros del microcontrolador desde la librería
- */
 #define F_CPU 16000000UL
 #include <avr/io.h>
 
@@ -34,14 +30,11 @@
 
 /*
  * Valores de comparación para el ancho de pulso del servo:
- *   1ms = 0° (posición mínima)  ? 1ms    / 0.5us = 2000 ticks
- *   2ms = 180° (posición máxima)? 2.0ms  / 0.5us = 4000 ticks
- *
- * Algunos servos aceptan hasta 0.5ms-2.5ms, pero 1ms-2ms
- * es el rango seguro y estándar para la mayoría.
+ *   0.5ms = 0° (posición mínima)  ? 0.5ms    / 0.5us = 1000 ticks
+ *   2.5ms = 180° (posición máxima)? 2.5ms  / 0.5us = 5000 ticks
  */
-#define SERVO_MIN       1000    // Pulso de 1ms  = posición 0°
-#define SERVO_MAX       5000    // Pulso de 2ms  = posición 180°
+#define SERVO_MIN       1000    // Pulso de 0.5ms  = posición 0°
+#define SERVO_MAX       5000    // Pulso de 2.5ms  = posición 180°
 
 /****************************************/
 // Prototipos de funciones de la librería
@@ -50,12 +43,11 @@
 /*
  * PWM_init
  * Configura el Timer1 en modo Fast PWM con TOP en ICR1.
- * Debe llamarse una sola vez al inicio del programa.
  */
 void PWM_init(void);
 
+// PWM Servo
 /*
- * PWM_setServo
  * Recibe un valor del ADC (0-1023) y lo mapea al rango
  * del servo (SERVO_MIN a SERVO_MAX), actualizando OCR1A.
  *

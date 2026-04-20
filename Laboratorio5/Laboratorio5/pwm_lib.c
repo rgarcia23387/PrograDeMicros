@@ -6,14 +6,11 @@
  * Description: Control de servo mediante PWM.
  */
 
-/****************************************/
 // Encabezado
-/****************************************/
 #include "pwm_lib.h"   // Incluir el header propio de la librería
 
-/****************************************/
 // Implementación de funciones
-/****************************************/
+
 
 /*
  * PWM_init

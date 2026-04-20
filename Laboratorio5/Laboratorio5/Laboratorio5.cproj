@@ -123,6 +123,12 @@
     <Compile Include="main.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="pwm2_lib.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="pwm2_lib.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="pwm_lib.c">
       <SubType>compile</SubType>
     </Compile>
