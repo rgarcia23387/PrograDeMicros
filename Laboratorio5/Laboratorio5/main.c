@@ -14,11 +14,14 @@
 #include <util/delay.h>
 #include "pwm_lib.h"    // Librería propia para el PWM del Servo 1.
 #include "pwm2_lib.h"    // Librería propia para el PWM del Servo 2.
+#include "pwm3_lib.h"    // Libreria propia para el PWM del LED.
+
 
 // Defines
 
 #define ADC_CH_POT1     0       // Canal ADC0 para el potenciómetro (pin A0)
 #define ADC_CH_POT2     1       // Canal ADC1 para el potenciómetro (pin A1)
+#define ADC_CH_POT3     2   // ADC2 -> Potenciometro LED
 #define ADC_STABLE_MS   5       // Pequeño delay para estabilizar lectura ADC
 
 /****************************************/
@@ -36,7 +39,8 @@ int main(void)
     initADC();
     PWM_init();
 	PWM2_init();
-
+	PWM3_init(); 
+	sei(); 
     while (1)
     {
          // Leer el potenciómetro en ADC canal 0
@@ -47,7 +51,12 @@ int main(void)
         uint16_t adc2 = readADC(ADC_CH_POT2);
 		// Actualizar la posición del servo según el ADC.
 		PWM2_setServo(adc2);
-
+		 // Leer el potenciómetro en ADC canal 2
+        uint16_t adc3 = readADC(ADC_CH_POT3);
+		//El duty cycle varia de 0% a 100% segun el potenciometro.
+		// Actualizar la intensidad del LED según el ADC.
+        PWM3_setDuty(adc3);
+		
          // Pequeño delay para no actualizar OCR1A más rápido
         _delay_ms(ADC_STABLE_MS);
     }

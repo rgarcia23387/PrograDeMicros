@@ -13,15 +13,8 @@
 #include <avr/io.h>
 
 // Defines de la libreria PWM2
-/*
- * Rango calibrado del servo en ticks del Timer2:
- * Cada tick = 64 microsegundos (prescaler 1024 / 16MHz)
- *
- * SERVO2_MIN =  8 ticks -> 8  * 64us = 0.512ms -> 0 grados
- * SERVO2_MAX = 20 ticks -> 20 * 64us = 1.280ms -> ~180 grados
- */
 #define SERVO2_MIN      8    // 0 grados
-#define SERVO2_MAX      20   // 180 grados (calibrado)
+#define SERVO2_MAX      39   // 180 grados (calibrado)
 
 
 // Prototipos

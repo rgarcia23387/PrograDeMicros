@@ -13,24 +13,14 @@
 // Configura el Timer2 en modo Phase Correct PWM.
 void PWM2_init(void)
 {
-    // PD3 (OC2B, pin D3) como salida fisica 
-    DDRD |= (1 << PD3);
-
-    /*
-     * TCCR2A:
-     *   COM2B1 = 1 -> No inversor en OC2B
-     *   WGM20  = 1 -> Phase Correct PWM
-     */
-    TCCR2A = (1 << COM2B1) | (1 << WGM20);
-
-    /*
-     * TCCR2B:
-     *   CS22=1, CS21=1, CS20=1 -> Prescaler 1024
-     */
+    // PB3 (OC2A, pin D11) como salida fisica 
+    DDRB |= (1 << PB3);
+	
+    TCCR2A = (1 << COM2A1) | (1 << WGM21) | (1 << WGM20);
     TCCR2B = (1 << CS22) | (1 << CS21) | (1 << CS20);
 
-    /* Posicion inicial: 0 grados */
-    OCR2B = SERVO2_MIN;
+    // Posicion inicial: 0 grados.
+    OCR2A = SERVO2_MIN;
 }
 
 // Mapea ADC (0-1023) al rango calibrado de OCR2B (8 a 20).
@@ -38,6 +28,8 @@ void PWM2_init(void)
 
 void PWM2_setServo(uint16_t adcValue)
 {
-    OCR2B = (uint8_t)(SERVO2_MIN +
-            ((uint32_t)adcValue * (SERVO2_MAX - SERVO2_MIN)) / 1023);
+	// Escalar ADC de 10 bits a 8 bits.
+	uint8_t valor_adc2 = (uint8_t)(adcValue >> 2);
+	//Calcular posicion del servo.
+    OCR2A = SERVO2_MIN + ((uint8_t)valor_adc2 * 31 / 255);
 }
