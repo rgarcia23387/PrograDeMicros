@@ -28,6 +28,11 @@ void UART_init(unsigned int ubrr);
 void UART_transmit(unsigned char data);
 unsigned char UART_receive(void);
 void mostrar_en_LEDs(unsigned char dato);
+void cadena(char  txt[]);
+void ADC_init(void);
+unsigned int ADC_read(void);
+void numero(unsigned int num);
+void menu(void);
 
 /****************************************/
 // Main Function
@@ -50,8 +55,18 @@ int main(void)
     // Habilitar interrupciones globales
     sei();
 
+    // Funcion cadena con diferentes textos
+    cadena("Hola Mundo!\n");
+    _delay_ms(1000);
+
+    cadena("Laboratorio 6 - UART\n");
+    _delay_ms(1000);
+
+    cadena("Rodrigo Garcia - 23387\n");
+    _delay_ms(1000);
+	
     // Parte 1: Enviar un caracter desde el MCU hacia la PC
-    UART_transmit('R');     // Enviar letra 'A' a la hiperterminal
+    // UART_transmit('R');     // Enviar letra 'A' a la hiperterminal
 
     // Parte 2: Recibir un caracter y mostrarlo en los LEDs
     unsigned char received;
@@ -59,6 +74,7 @@ int main(void)
     while (1)
     {
         received = UART_receive();      // Esperar y recibir caracter
+		UART_transmit(received);		// Eco en Terminal
         mostrar_en_LEDs(received);      // Mostrar en Puerto B y Puerto C
     }
 
@@ -98,10 +114,18 @@ unsigned char UART_receive(void)
     return UDR0;
 }
 
+void cadena(char txt[])
+{
+    for (unsigned char i = 0; txt[i] != '\0'; i++)
+    {
+	    UART_transmit(txt[i]);
+    }
+}
+
 // mostrar_en_LEDs: Muestra el byte recibido en los 8 LEDs
 void mostrar_en_LEDs(unsigned char dato)
 {
-    // Bits bajos a Puerto B, protegiendo PB6 y PB7
+    // Bits bajos a Puerto B
     PORTB = (PORTB & 0xC0) | (dato & 0x3F);
 
     // Bits altos desplazados a PC0 y PC1
