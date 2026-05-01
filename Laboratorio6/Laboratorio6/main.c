@@ -3,9 +3,7 @@
  *
  * Created: 24/04/2026 11:38:30
  * Author: Rodrigo García
- * Description: Parte 1: Enviar caracter del MCU a PC via UART.
- *              Parte 2: Recibir caracter desde hiperterminal y mostrarlo en
- *              Puerto B y Puerto C con 8 LEDs.
+ * Description: Laboratorio Completo - Menu de opciones para ver el valor del potenciometro y enviar ASCII
  */
 
 /****************************************/
@@ -49,33 +47,25 @@ int main(void)
     DDRC = 0x03;        // 0b00000011
     PORTC = 0x00;
 
-    // Inicializar UART
+    // Inicializar UART y ADC
     UART_init(UBRR_VAL);
+	ADC_init();
 
     // Habilitar interrupciones globales
     sei();
 
-    // Funcion cadena con diferentes textos
-    cadena("Hola Mundo!\n");
-    _delay_ms(1000);
-
-    cadena("Laboratorio 6 - UART\n");
-    _delay_ms(1000);
-
-    cadena("Rodrigo Garcia - 23387\n");
-    _delay_ms(1000);
+    // Primer Mensaje
+    cadena(" Laboratorio 6 - UART \n");
 	
     // Parte 1: Enviar un caracter desde el MCU hacia la PC
     // UART_transmit('R');     // Enviar letra 'A' a la hiperterminal
 
     // Parte 2: Recibir un caracter y mostrarlo en los LEDs
-    unsigned char received;
+    // unsigned char received;
 
     while (1)
     {
-        received = UART_receive();      // Esperar y recibir caracter
-		UART_transmit(received);		// Eco en Terminal
-        mostrar_en_LEDs(received);      // Mostrar en Puerto B y Puerto C
+       menu(); // Mostrar menu y ver opciones.
     }
 
     return 0;
@@ -132,6 +122,102 @@ void mostrar_en_LEDs(unsigned char dato)
     PORTC = (PORTC & 0xFC) | ((dato >> 6) & 0x03);
 }
 
+// Configurar Modulo ADC
+void ADC_init(void)
+{
+	ADMUX = (1 << REFS0) | (1 << MUX1); // Referencia AVCC y Canal ADC2
+    ADCSRA = (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);  // Habilitar ADC con Prescaler 128
+	
+}
+
+// Leer el Valor del ADC
+unsigned int ADC_read(void)
+{
+	ADCSRA |= (1 << ADSC); //Iniciar la conversion
+	while (ADCSRA & (1 << ADSC)); // Esperar que termine
+	return ADC; // REtornar valor 
+}
+void numero(unsigned int num)
+{
+	char buffer[6];
+	unsigned char i = 0;
+	    // Caso especial: si num es 0
+	    if (num == 0)
+	    {
+		    UART_transmit('0');
+		    return;
+	    }
+
+	    // Extraer digitos de derecha a izquierda
+	    while (num > 0)
+	    {
+		    buffer[i] = (num % 10) + '0';  // Convertir digito a ASCII
+		    num /= 10;
+		    i++;
+	    }
+
+	    // Enviar digitos de izquierda a derecha 
+	    for (unsigned char j = i; j > 0; j--)
+	    {
+		    UART_transmit(buffer[j - 1]);
+	    }
+}
+void menu(void)
+{
+    unsigned char opcion;
+    unsigned int valorADC;
+
+    // Mostrar menu
+    cadena("\n----------------------\n");
+    cadena("        MENU          \n");
+    cadena("----------------------\n");
+    cadena("1. Leer Potenciometro \n");
+    cadena("2. Enviar ASCII       \n");
+    cadena("----------------------\n");
+    cadena("Ingrese opcion: ");
+
+    // Esperar opcion del usuario
+    opcion = UART_receive();
+    UART_transmit(opcion);              // Eco de la opcion
+    cadena("\n");
+
+    // Ejecutar segun opcion
+    switch (opcion)
+    {
+		case '1':
+		// Leer potenciometro y mostrar valor de 0 a 255
+		valorADC = ADC_read();
+		unsigned char valor8bits = (unsigned char)(valorADC >> 2);  //8 bits
+
+		cadena("Valor Potenciometro: ");
+		numero(valor8bits);
+		cadena("/255\n");
+
+		// Mostrar en LEDs
+		mostrar_en_LEDs(valor8bits);
+		_delay_ms(500);
+		break;
+
+	    case '2':
+	    // Recibir un caracter ASCII y mostrarlo en LEDs
+	    cadena("Escriba un caracter: ");
+	    unsigned char ascii = UART_receive();
+	    UART_transmit(ascii);       // Eco del caracter
+	    cadena("\nCaracter recibido: ");
+	    UART_transmit(ascii);
+	    cadena("\nValor ASCII: ");
+	    numero(ascii);
+	    cadena("\n");
+	    mostrar_en_LEDs(ascii);     // Mostrar en LEDs
+	    _delay_ms(500);
+	    break;
+
+	    default:
+	    // Opcion invalida
+	    cadena("Opcion invalida, intente de nuevo.\n");
+	    break;
+    }
+}
 /****************************************/
 // Interrupt routines
 /****************************************/
